@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/context/LanguageContext";
 import {
     Square,
     Home,
@@ -11,14 +12,13 @@ import {
     ChefHat,
     Calendar,
     PlusCircle,
-    CheckCircle2,
     ArrowRight,
     Info
 } from "lucide-react";
 
-// --- Pricing Logic Constants (Based on Strategy) ---
-const BASE_RATE_PER_SQM = 1.5; // Final rate will depend on service type
-const ROOM_SURCHARGE = 15; // Kitchens/Bathrooms extra complexity
+// --- Pricing Logic Constants ---
+const BASE_RATE_PER_SQM = 1.5;
+const ROOM_SURCHARGE = 15;
 const SERVICE_MODIFIERS = {
     standard: 1,
     deep: 1.8,
@@ -26,20 +26,22 @@ const SERVICE_MODIFIERS = {
 };
 const FREQUENCY_DISCOUNTS = {
     once: 0,
-    weekly: 0.20,    // 20% Off
-    biweekly: 0.15,  // 15% Off
-    monthly: 0.10,   // 10% Off
+    weekly: 0.20,
+    biweekly: 0.15,
+    monthly: 0.10,
 };
 
-const EXTRAS_LIST = [
-    { id: "windows", name: "Windows (Inside)", price: 30, icon: <Square className="w-4 h-4" /> },
-    { id: "oven", name: "Oven Deep Clean", price: 25, icon: <ChefHat className="w-4 h-4" /> },
-    { id: "fridge", name: "Fridge Inside", price: 20, icon: <PlusCircle className="w-4 h-4" /> },
-    { id: "cabinets", name: "Inside Cabinets", price: 40, icon: <PlusCircle className="w-4 h-4" /> },
-    { id: "balcony", name: "Balcony", price: 20, icon: <PlusCircle className="w-4 h-4" /> },
-];
-
 export function Calculator() {
+    const { dict } = useTranslation();
+
+    const EXTRAS_LIST = [
+        { id: "windows", name: dict.pricing.features.windows || "Windows", price: 30, icon: <Square className="w-4 h-4" /> },
+        { id: "oven", name: "Oven Deep Clean", price: 25, icon: <ChefHat className="w-4 h-4" /> },
+        { id: "fridge", name: "Fridge Inside", price: 20, icon: <PlusCircle className="w-4 h-4" /> },
+        { id: "cabinets", name: dict.pricing.features.cabinets || "Cabinets", price: 40, icon: <PlusCircle className="w-4 h-4" /> },
+        { id: "balcony", name: "Balcony", price: 20, icon: <PlusCircle className="w-4 h-4" /> },
+    ];
+
     const [sqm, setSqm] = useState(50);
     const [serviceType, setServiceType] = useState<keyof typeof SERVICE_MODIFIERS>("standard");
     const [bathrooms, setBathrooms] = useState(1);
@@ -48,235 +50,164 @@ export function Calculator() {
     const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
     const [totalPrice, setTotalPrice] = useState(0);
 
-    // Calculate Price on any input change
     useEffect(() => {
         let price = sqm * BASE_RATE_PER_SQM * SERVICE_MODIFIERS[serviceType];
-
-        // Add room surcharges
         price += (bathrooms + kitchens) * ROOM_SURCHARGE;
-
-        // Add extras
         selectedExtras.forEach(extraId => {
             const extra = EXTRAS_LIST.find(e => e.id === extraId);
             if (extra) price += extra.price;
         });
-
-        // Apply frequency discount
         const discount = price * FREQUENCY_DISCOUNTS[frequency];
         price -= discount;
-
         setTotalPrice(Math.round(price));
-    }, [sqm, serviceType, bathrooms, kitchens, frequency, selectedExtras]);
+    }, [sqm, serviceType, bathrooms, kitchens, frequency, selectedExtras, dict]);
 
     const toggleExtra = (id: string) => {
-        setSelectedExtras(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-        );
+        setSelectedExtras(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
     };
 
     return (
         <section id="booking" className="py-24 bg-white relative overflow-hidden">
             <div className="container px-4 mx-auto relative z-10">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">
-                        Get an <span className="text-water-600">Instant</span> Quote
+                <div className="text-center max-w-3xl mx-auto mb-20">
+                    <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6">
+                        {dict.calculator.title} <span className="text-water-600">{dict.calculator.subtitle}</span>
                     </h2>
-                    <p className="text-lg text-slate-600">
-                        Customize your cleaning plan. Our algorithm calculates the best price based on your specific requirements in Tbilisi.
+                    <p className="text-lg text-slate-600 font-medium leading-relaxed">
+                        {dict.calculator.description}
                     </p>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-12 items-start max-w-7xl mx-auto">
-
-                    {/* Settings Panel */}
-                    <div className="lg:col-span-8 flex flex-col gap-8">
-                        <GlassCard className="p-8">
-                            <div className="grid md:grid-cols-2 gap-8">
-
-                                {/* Area Input */}
-                                <div className="space-y-4">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <div className="lg:col-span-8 flex flex-col gap-10">
+                        <GlassCard className="p-10 border-slate-100">
+                            <div className="grid md:grid-cols-2 gap-10">
+                                <div className="space-y-6">
+                                    <label className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase">
                                         <Square className="w-4 h-4 text-water-500" />
-                                        APARTMENT SIZE ({sqm} m²)
+                                        {dict.calculator.apt_size} ({sqm} m²)
                                     </label>
-                                    <input
-                                        type="range"
-                                        min="20"
-                                        max="300"
-                                        step="5"
-                                        value={sqm}
-                                        onChange={(e) => setSqm(parseInt(e.target.value))}
-                                        className="w-full h-2 bg-water-100 rounded-lg appearance-none cursor-pointer accent-water-500"
-                                    />
-                                    <div className="flex justify-between text-xs text-slate-400">
-                                        <span>20 m²</span>
-                                        <span>300 m²</span>
-                                    </div>
+                                    <input type="range" min="20" max="300" step="5" value={sqm} onChange={(e) => setSqm(parseInt(e.target.value))} className="w-full h-2 bg-water-100 rounded-lg appearance-none cursor-pointer accent-water-500" />
                                 </div>
 
-                                {/* Service Type */}
-                                <div className="space-y-4">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <div className="space-y-6">
+                                    <label className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase">
                                         <Home className="w-4 h-4 text-water-500" />
-                                        SERVICE TYPE
+                                        {dict.calculator.service_type}
                                     </label>
-                                    <div className="flex bg-slate-100 p-1 rounded-xl">
-                                        {Object.keys(SERVICE_MODIFIERS).map((type) => (
-                                            <button
-                                                key={type}
-                                                onClick={() => setServiceType(type as any)}
-                                                className={cn(
-                                                    "flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all",
-                                                    serviceType === type
-                                                        ? "bg-white text-water-600 shadow-sm"
-                                                        : "text-slate-500 hover:text-slate-700"
-                                                )}
-                                            >
-                                                {type}
+                                    <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+                                        {(Object.keys(SERVICE_MODIFIERS) as Array<keyof typeof SERVICE_MODIFIERS>).map((type) => (
+                                            <button key={type} onClick={() => setServiceType(type)} className={cn("flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all", serviceType === type ? "bg-white text-water-600 shadow-xl shadow-water-500/10" : "text-slate-400 hover:text-slate-600")}>
+                                                {dict.pricing[type].name}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Rooms */}
-                                <div className="space-y-4">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <div className="space-y-6">
+                                    <label className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase">
                                         <Bath className="w-4 h-4 text-water-500" />
-                                        BATHROOMS & KITCHENS
+                                        {dict.calculator.rooms}
                                     </label>
                                     <div className="flex gap-4">
-                                        <div className="flex-1 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-2 px-4">
-                                            <span className="text-xs text-slate-500 font-medium">BATHS</span>
-                                            <div className="flex items-center gap-3">
-                                                <button onClick={() => setBathrooms(Math.max(1, bathrooms - 1))} className="text-water-500 hover:text-water-700 font-bold">-</button>
-                                                <span className="text-sm font-bold text-slate-700">{bathrooms}</span>
-                                                <button onClick={() => setBathrooms(bathrooms + 1)} className="text-water-500 hover:text-water-700 font-bold">+</button>
+                                        <div className="flex-1 flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-3 px-5 text-[10px] font-black tracking-widest shadow-sm">
+                                            <span className="text-slate-400 uppercase">{dict.calculator.baths}</span>
+                                            <div className="flex items-center gap-4 font-black">
+                                                <button onClick={() => setBathrooms(Math.max(1, bathrooms - 1))} className="text-water-500 text-lg">-</button>
+                                                <span className="text-slate-900 text-sm">{bathrooms}</span>
+                                                <button onClick={() => setBathrooms(bathrooms + 1)} className="text-water-500 text-lg">+</button>
                                             </div>
                                         </div>
-                                        <div className="flex-1 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-2 px-4">
-                                            <span className="text-xs text-slate-500 font-medium">KITCHENS</span>
-                                            <div className="flex items-center gap-3">
-                                                <button onClick={() => setKitchens(Math.max(1, kitchens - 1))} className="text-water-500 hover:text-water-700 font-bold">-</button>
-                                                <span className="text-sm font-bold text-slate-700">{kitchens}</span>
-                                                <button onClick={() => setKitchens(kitchens + 1)} className="text-water-500 hover:text-water-700 font-bold">+</button>
+                                        <div className="flex-1 flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-3 px-5 text-[10px] font-black tracking-widest shadow-sm">
+                                            <span className="text-slate-400 uppercase">{dict.calculator.kitchens}</span>
+                                            <div className="flex items-center gap-4 font-black">
+                                                <button onClick={() => setKitchens(Math.max(1, kitchens - 1))} className="text-water-500 text-lg">-</button>
+                                                <span className="text-slate-900 text-sm">{kitchens}</span>
+                                                <button onClick={() => setKitchens(kitchens + 1)} className="text-water-500 text-lg">+</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Frequency */}
-                                <div className="space-y-4">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <div className="space-y-6">
+                                    <label className="flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-400 uppercase">
                                         <Calendar className="w-4 h-4 text-water-500" />
-                                        FREQUENCY
+                                        {dict.calculator.frequency}
                                     </label>
-                                    <select
-                                        value={frequency}
-                                        onChange={(e) => setFrequency(e.target.value as any)}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-water-500/20"
-                                    >
-                                        <option value="once">One-time cleaning</option>
-                                        <option value="weekly">Weekly (20% Off)</option>
-                                        <option value="biweekly">Every 2 Weeks (15% Off)</option>
-                                        <option value="monthly">Monthly (10% Off)</option>
+                                    <select value={frequency} onChange={(e) => setFrequency(e.target.value as any)} className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-water-500/10 shadow-sm appearance-none">
+                                        <option value="once">{dict.calculator.once}</option>
+                                        <option value="weekly">{dict.calculator.weekly}</option>
+                                        <option value="biweekly">{dict.calculator.biweekly}</option>
+                                        <option value="monthly">{dict.calculator.monthly}</option>
                                     </select>
                                 </div>
-
                             </div>
                         </GlassCard>
 
-                        {/* Extras Selection */}
                         <div>
-                            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Extra Services</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 ml-4">{dict.calculator.extras}</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-6">
                                 {EXTRAS_LIST.map((extra) => (
-                                    <button
-                                        key={extra.id}
-                                        onClick={() => toggleExtra(extra.id)}
-                                        className={cn(
-                                            "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300",
-                                            selectedExtras.includes(extra.id)
-                                                ? "bg-water-50 border-water-500 text-water-700 shadow-lg shadow-water-500/10 scale-[1.02]"
-                                                : "bg-white border-slate-100 text-slate-500 hover:border-water-200"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-                                            selectedExtras.includes(extra.id) ? "bg-water-500 text-white" : "bg-slate-50 text-slate-400"
-                                        )}>
+                                    <button key={extra.id} onClick={() => toggleExtra(extra.id)} className={cn("flex flex-col items-center gap-4 p-6 rounded-[32px] border transition-all duration-500 group", selectedExtras.includes(extra.id) ? "bg-water-50 border-water-500 text-water-700 shadow-2xl shadow-water-500/10 scale-105" : "bg-white border-slate-100 text-slate-400 hover:border-water-200 hover:shadow-xl hover:shadow-slate-200/50")}>
+                                        <div className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110", selectedExtras.includes(extra.id) ? "bg-water-500 text-white shadow-xl shadow-water-500/40" : "bg-slate-50")}>
                                             {extra.icon}
                                         </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight">
-                                            {extra.name}
-                                        </span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-center leading-tight transition-colors group-hover:text-slate-600">{extra.name}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Checkout Summary Card */}
                     <div className="lg:col-span-4 sticky top-28">
-                        <GlassCard className="p-8 border-water-500/50 relative overflow-hidden">
-                            {/* Background Accent */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-water-500/5 blur-3xl rounded-full -mr-16 -mt-16" />
-
-                            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center justify-between">
-                                Booking Summary
-                                <span className="text-[10px] bg-leaf-500/10 text-leaf-600 px-2 py-0.5 rounded-full">Secure</span>
+                        <GlassCard className="p-10 border-water-500/50 bg-white/40">
+                            <h3 className="text-2xl font-black text-slate-900 mb-8 flex items-center justify-between">
+                                {dict.calculator.summary}
+                                <span className="text-[10px] font-black uppercase tracking-widest bg-leaf-500/10 text-leaf-600 px-3 py-1 rounded-full">{dict.calculator.secure}</span>
                             </h3>
 
-                            <div className="space-y-4 mb-8">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500">{serviceType.charAt(0).toUpperCase() + serviceType.slice(1)} Clean ({sqm}m²)</span>
-                                    <span className="font-bold text-slate-700">₾ {Math.round(sqm * BASE_RATE_PER_SQM * SERVICE_MODIFIERS[serviceType])}</span>
+                            <div className="space-y-5 mb-10">
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className="text-slate-400">{dict.pricing[serviceType].name} ({sqm}m²)</span>
+                                    <span className="text-slate-900">₾ {Math.round(sqm * BASE_RATE_PER_SQM * SERVICE_MODIFIERS[serviceType])}</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500">{bathrooms + kitchens} Base Rooms</span>
-                                    <span className="font-bold text-slate-700">₾ {(bathrooms + kitchens) * ROOM_SURCHARGE}</span>
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className="text-slate-400 uppercase tracking-tighter text-[11px]">{bathrooms + kitchens} {dict.calculator.rooms}</span>
+                                    <span className="text-slate-900">₾ {(bathrooms + kitchens) * ROOM_SURCHARGE}</span>
                                 </div>
                                 {selectedExtras.length > 0 && (
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-slate-500">{selectedExtras.length} Extras selected</span>
-                                        <span className="font-bold text-slate-700">
-                                            ₾ {selectedExtras.reduce((acc, id) => acc + (EXTRAS_LIST.find(e => e.id === id)?.price || 0), 0)}
-                                        </span>
+                                    <div className="flex justify-between text-sm font-bold">
+                                        <span className="text-slate-400 uppercase tracking-tighter text-[11px]">{selectedExtras.length} {dict.calculator.selected_extras}</span>
+                                        <span className="text-slate-900">₾ {selectedExtras.reduce((acc, id) => acc + (EXTRAS_LIST.find(e => e.id === id)?.price || 0), 0)}</span>
                                     </div>
                                 )}
                                 {frequency !== "once" && (
-                                    <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-                                        <span className="text-leaf-600 font-medium">Recurring Discount</span>
-                                        <span className="font-bold text-leaf-600">
-                                            - ₾ {Math.round((totalPrice / (1 - FREQUENCY_DISCOUNTS[frequency])) * FREQUENCY_DISCOUNTS[frequency])}
-                                        </span>
+                                    <div className="flex justify-between text-sm pt-4 border-t border-slate-100">
+                                        <span className="text-leaf-600 font-black uppercase tracking-widest text-[10px]">{dict.calculator.discount}</span>
+                                        <span className="font-black text-leaf-600">- ₾ {Math.round((totalPrice / (1 - FREQUENCY_DISCOUNTS[frequency])) * FREQUENCY_DISCOUNTS[frequency])}</span>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="pt-6 border-t border-slate-200">
-                                <div className="flex items-center justify-between mb-8">
-                                    <span className="text-lg font-bold text-slate-900">Total Price</span>
+                            <div className="pt-8 border-t-2 border-slate-100">
+                                <div className="flex items-center justify-between mb-10">
+                                    <span className="text-lg font-black text-slate-900 uppercase tracking-widest">{dict.calculator.total}</span>
                                     <div className="text-right">
-                                        <div className="text-4xl font-black text-water-600">₾ {totalPrice}</div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">VAT Included</div>
+                                        <div className="text-5xl font-black text-water-600 tracking-tighter">₾ {totalPrice}</div>
+                                        <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2">{dict.calculator.vat}</div>
                                     </div>
                                 </div>
-
-                                <Button className="w-full h-14 text-lg" variant="primary">
-                                    Complete Booking
-                                    <ArrowRight className="ml-2 w-5 h-5" />
+                                <Button className="w-full h-16 text-xl font-black uppercase tracking-widest shadow-2xl shadow-water-500/30" variant="primary">
+                                    {dict.calculator.complete}
+                                    <ArrowRight className="ml-3 w-6 h-6" />
                                 </Button>
                             </div>
-
-                            <div className="mt-8 p-4 bg-slate-50 rounded-2xl flex items-start gap-3">
+                            <div className="mt-8 p-5 bg-slate-50/50 rounded-3xl flex items-start gap-4 border border-slate-200/50">
                                 <Info className="w-5 h-5 text-water-500 shrink-0 mt-0.5" />
-                                <p className="text-[11px] text-slate-500 leading-relaxed">
-                                    Prices are estimates for standard conditions in Tbilisi. Final price may vary based on actual on-site inspection.
-                                </p>
+                                <p className="text-[11px] text-slate-500 font-medium leading-relaxed italic">{dict.calculator.disclaimer}</p>
                             </div>
                         </GlassCard>
                     </div>
-
                 </div>
             </div>
         </section>

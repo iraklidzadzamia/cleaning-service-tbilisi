@@ -1,0 +1,80 @@
+{
+    "common": {
+        "book_now": "Book Now",
+        "get_quote": "Get a Quote",
+        "services": "Services",
+        "pricing": "Pricing",
+        "about": "About",
+        "contact": "Contact"
+    },
+    "hero": {
+        "badge": "#1 Rated in Tbilisi",
+        "title_part1": "Reclaim Your",
+        "title_part2": "Weekend",
+        "description": "Professional cleaning rooted in trust. Providing corporate-level reliability for your home in Tbilisi.",
+        "cta_primary": "Book in 60 Seconds",
+        "cta_secondary": "View Service Matrix",
+        "trust_insured": "Insured & Bonded",
+        "trust_eco": "Eco-Friendly Products",
+        "trust_reviews": "4.9/5 (Google)"
+    },
+    "pricing": {
+        "title": "Transparent Pricing. No Surprises.",
+        "description": "Choose the package that fits your needs. All plans include our 100% satisfaction guarantee.",
+        "popular": "Most Popular",
+        "from": "from",
+        "choose": "Choose",
+        "standard": {
+            "name": "Standard",
+            "price": "from 2₾/m²",
+            "desc": "Perfect for maintaining a tidy home."
+        },
+        "deep": {
+            "name": "Deep Clean",
+            "price": "from 4₾/m²",
+            "desc": "Thorough cleaning for neglected spaces."
+        },
+        "renovation": {
+            "name": "Renovation",
+            "price": "from 6₾/m²",
+            "desc": "Specialized post-construction cleanup."
+        },
+        "features": {
+            "dusting": "Dusting surfaces",
+            "vacuuming": "Vacuuming & Mopping",
+            "bathroom": "Bathroom sanitation",
+            "kitchen": "Kitchen surfaces",
+            "windows": "Window cleaning",
+            "cabinets": "Inside cabinets",
+            "stains": "Deep stain removal",
+            "renovation_dust": "Dust removal (walls/ceilings)",
+            "paint": "Paint spot removal",
+            "scrubbing": "Heavy duty scrubbing",
+            "debris": "Debris removal"
+        }
+    },
+    "calculator": {
+        "title": "Instant",
+        "subtitle": "Quote",
+        "description": "Customize your cleaning plan. Our algorithm calculates the best price based on your specific requirements in Tbilisi.",
+        "apt_size": "APARTMENT SIZE",
+        "service_type": "SERVICE TYPE",
+        "rooms": "BATHROOMS & KITCHENS",
+        "frequency": "FREQUENCY",
+        "baths": "BATHS",
+        "kitchens": "KITCHENS",
+        "once": "One-time cleaning",
+        "weekly": "Weekly (20% Off)",
+        "biweekly": "Every 2 Weeks (15% Off)",
+        "monthly": "Monthly (10% Off)",
+        "extras": "Extra Services",
+        "summary": "Booking Summary",
+        "secure": "Secure",
+        "total": "Total Price",
+        "vat": "VAT Included",
+        "complete": "Complete Booking",
+        "disclaimer": "Prices are estimates for standard conditions in Tbilisi. Final price may vary based on actual on-site inspection.",
+        "discount": "Recurring Discount",
+        "selected_extras": "Extras selected"
+    }
+}
